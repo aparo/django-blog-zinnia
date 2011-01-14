@@ -30,6 +30,7 @@ UPLOAD_TO = getattr(settings, 'ZINNIA_UPLOAD_TO', 'uploads')
 
 PROTOCOL = getattr(settings, 'ZINNIA_PROTOCOL', 'http')
 MEDIA_URL = getattr(settings, 'ZINNIA_MEDIA_URL', '/zinnia/')
+STATIC_URL = getattr(settings, 'ZINNIA_STATIC_URL', '/static/zinnia/')
 
 FEEDS_FORMAT = getattr(settings, 'ZINNIA_FEEDS_FORMAT', 'rss')
 FEEDS_MAX_ITEMS = getattr(settings, 'ZINNIA_FEEDS_MAX_ITEMS', 15)

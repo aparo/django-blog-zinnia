@@ -1,11 +1,11 @@
 """Context Processors for Zinnia"""
 from zinnia import __version__
-from zinnia.settings import MEDIA_URL
+from zinnia.settings import STATIC_URL
 
 
 def media(request):
     """Adds media-related context variables to the context"""
-    return {'ZINNIA_MEDIA_URL': MEDIA_URL}
+    return {'ZINNIA_MEDIA_URL': STATIC_URL}
 
 
 def version(request):

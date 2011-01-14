@@ -268,16 +268,16 @@ class EntryAdmin(admin.ModelAdmin):
         return urls + entry_admin_urls
 
     def _media(self):
-        MEDIA_URL = settings.MEDIA_URL
+        STATIC_URL = settings.STATIC_URL
         media = super(EntryAdmin, self).media + \
-                Media(css={'all': ('%scss/jquery.autocomplete.css' % MEDIA_URL,)},
-                      js=('%sjs/jquery.js' % MEDIA_URL,
-                          '%sjs/jquery.bgiframe.js' % MEDIA_URL,
-                          '%sjs/jquery.autocomplete.js' % MEDIA_URL,
+                Media(css={'all': ('%scss/jquery.autocomplete.css' % STATIC_URL,)},
+                      js=('%sjs/jquery.js' % STATIC_URL,
+                          '%sjs/jquery.bgiframe.js' % STATIC_URL,
+                          '%sjs/jquery.autocomplete.js' % STATIC_URL,
                           reverse('admin:zinnia_entry_autocomplete_tags'),))
 
         if settings.WYSIWYG == 'wymeditor':
-            media += Media(js=('%sjs/wymeditor/jquery.wymeditor.pack.js' % MEDIA_URL,
+            media += Media(js=('%sjs/wymeditor/jquery.wymeditor.pack.js' % STATIC_URL,
                                reverse('admin:zinnia_entry_wymeditor')))
         elif settings.WYSIWYG == 'tinymce':
             from tinymce.widgets import TinyMCE
