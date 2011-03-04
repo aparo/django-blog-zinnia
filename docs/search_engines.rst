@@ -3,8 +3,10 @@ Search Engines
 
 Zinnia like almost all blogging systems contains a search engine feature.
 
-But in fact there are 2 search engines, a basic and an advanced, you can
-choose the engine you want to use, but you can't use both in the same time.
+But in fact there are 2 search engines, a basic and an advanced, the
+advanced search engine is enabled by default, but if he fails the
+basic search engine will resume the job.
+
 
 Basic Search Engine
 -------------------
@@ -86,10 +88,15 @@ Here a list of examples and possibilities :
     'berlin' with the term 'love'.
 
   * Complex example :
-      *((paris or berlin) and (tag:love or category:meeting) girl -money*
+      *((paris or berlin) and (tag:love or category:meet\*) girl -money*
 
     This will returns all the entries containing the terms 'paris' or
-    'berlin' with the tag 'love' or filled under the category 'meeting'
+    'berlin' with the tag 'love' or filled under the categories starting by 'meet'
     also containing the term 'girl' excluding entries with the term 'money'.
 
 
+Note that the query is stripped of common words known as stop words.
+These are words such as *on*, *the* or *which* that are generally
+not meaningful and cause irrelevant results.
+
+The list of stop words is stored in the ZINNIA_STOP_WORDS setting.

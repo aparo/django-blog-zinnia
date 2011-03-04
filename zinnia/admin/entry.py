@@ -26,9 +26,9 @@ class EntryAdmin(admin.ModelAdmin):
     date_hierarchy = 'creation_date'
     fieldsets = ((_('Content'), {'fields': ('title', 'content',
                                             'image', 'status')}),
-                 (_('Options'), {'fields': ('excerpt', 'template', 'related',
-                                            'authors', 'creation_date',
-                                            'start_publication',
+                 (_('Options'), {'fields': ('featured', 'excerpt', 'template',
+                                            'related', 'authors',
+                                            'creation_date', 'start_publication',
                                             'end_publication'),
                                  'classes': ('collapse', 'collapse-closed')}),
                  (_('Privacy'), {'fields': ('password', 'login_required',),
@@ -37,8 +37,8 @@ class EntryAdmin(admin.ModelAdmin):
                                                'pingback_enabled')}),
                  (_('Publication'), {'fields': ('categories', 'tags',
                                                 'sites', 'slug')}))
-    list_filter = ('categories', 'authors', 'status', 'login_required',
-                   'comment_enabled', 'pingback_enabled',
+    list_filter = ('categories', 'authors', 'status', 'featured',
+                   'login_required', 'comment_enabled', 'pingback_enabled',
                    'creation_date', 'start_publication',
                    'end_publication', 'sites')
     list_display = ('get_title', 'get_authors', 'get_categories',
@@ -52,7 +52,7 @@ class EntryAdmin(admin.ModelAdmin):
     search_fields = ('title', 'excerpt', 'content', 'tags')
     actions = ['make_mine', 'make_published', 'make_hidden',
                'close_comments', 'close_pingbacks',
-               'ping_directories', 'make_tweet']
+               'ping_directories', 'make_tweet', 'put_on_top']
     actions_on_top = True
     actions_on_bottom = True
 
@@ -233,6 +233,11 @@ class EntryAdmin(admin.ModelAdmin):
         """Close the pingbacks for selected entries"""
         queryset.update(pingback_enabled=False)
     close_pingbacks.short_description = _('Close the linkbacks for selected entries')
+
+    def put_on_top(self, request, queryset):
+        """Put the selected entries on top at the current date"""
+        queryset.update(creation_date=datetime.now())
+    put_on_top.short_description = _('Put the selected entries on top at the current date')
 
     def ping_directories(self, request, queryset):
         """Ping Directories for selected entries"""

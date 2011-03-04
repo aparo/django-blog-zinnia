@@ -4,13 +4,22 @@ from calendar import HTMLCalendar
 
 from django.utils.dates import MONTHS
 from django.utils.dates import WEEKDAYS_ABBR
+from django.utils.formats import get_format
 from django.core.urlresolvers import reverse
 
 from zinnia.models import Entry
 
+AMERICAN_TO_EUROPEAN_WEEK_DAYS = [6, 0, 1, 2, 3, 4, 5]
+
 
 class ZinniaCalendar(HTMLCalendar):
     """Override of HTMLCalendar"""
+
+    def __init__(self):
+        """Retrieve and convert the localized first week day
+        at initialization"""
+        HTMLCalendar.__init__(self, AMERICAN_TO_EUROPEAN_WEEK_DAYS[
+            get_format('FIRST_DAY_OF_WEEK')])
 
     def formatday(self, day, weekday):
         """Return a day as a table cell with a link

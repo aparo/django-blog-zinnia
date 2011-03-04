@@ -2,7 +2,8 @@
 import os
 from zinnia.xmlrpc import ZINNIA_XMLRPC_METHODS
 
-DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3'}}
+DATABASES = {'default': {'NAME': 'zinnia_tests.db',
+                         'ENGINE': 'django.db.backends.sqlite3'}}
 
 SITE_ID = 1
 
@@ -24,5 +25,7 @@ INSTALLED_APPS = ['django.contrib.contenttypes',
                   'django.contrib.auth',
                   'django_xmlrpc',
                   'mptt', 'tagging', 'zinnia']
+
+ZINNIA_PAGINATION = 3
 
 XMLRPC_METHODS = ZINNIA_XMLRPC_METHODS

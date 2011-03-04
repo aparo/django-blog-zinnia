@@ -14,7 +14,7 @@ from zinnia.managers import entries_published
 class EntrySitemap(Sitemap):
     """Sitemap for entries"""
     priority = 0.5
-    changefreq = 'never'
+    changefreq = 'weekly'
 
     def items(self):
         """Return published entries"""
@@ -34,8 +34,11 @@ class CategorySitemap(Sitemap):
         len_entries = float(Entry.published.count())
         self.cache_categories = {}
         for cat in categories:
-            self.cache_categories[cat.pk] = cat.entries_published_set(
-                ).count() / len_entries
+            if len_entries:
+                self.cache_categories[cat.pk] = cat.entries_published_set(
+                    ).count() / len_entries
+            else:
+                self.cache_categories[cat.pk] = 0.0
 
     def items(self):
         """Return all categories with coeff"""

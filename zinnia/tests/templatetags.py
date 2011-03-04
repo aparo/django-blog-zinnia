@@ -8,7 +8,10 @@ from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.contrib.comments.models import Comment
 
+from tagging.models import Tag
+
 from zinnia.models import Entry
+from zinnia.models import Author
 from zinnia.models import Category
 from zinnia.managers import DRAFT
 from zinnia.managers import PUBLISHED
@@ -24,6 +27,7 @@ from zinnia.templatetags.zinnia_tags import get_recent_comments
 from zinnia.templatetags.zinnia_tags import get_recent_linkbacks
 from zinnia.templatetags.zinnia_tags import get_calendar_entries
 from zinnia.templatetags.zinnia_tags import get_archives_entries
+from zinnia.templatetags.zinnia_tags import get_featured_entries
 from zinnia.templatetags.zinnia_tags import get_archives_entries_tree
 
 
@@ -40,6 +44,7 @@ class TemplateTagsTestCase(TestCase):
 
     def publish_entry(self):
         self.entry.status = PUBLISHED
+        self.entry.featured = True
         self.entry.sites.add(Site.objects.get_current())
         self.entry.save()
 
@@ -76,6 +81,18 @@ class TemplateTagsTestCase(TestCase):
         self.assertEquals(len(context['entries']), 1)
         self.assertEquals(context['template'], 'custom_template.html')
         context = get_recent_entries(0)
+        self.assertEquals(len(context['entries']), 0)
+
+    def test_get_featured_entries(self):
+        context = get_featured_entries()
+        self.assertEquals(len(context['entries']), 0)
+        self.assertEquals(context['template'], 'zinnia/tags/featured_entries.html')
+
+        self.publish_entry()
+        context = get_featured_entries(3, 'custom_template.html')
+        self.assertEquals(len(context['entries']), 1)
+        self.assertEquals(context['template'], 'custom_template.html')
+        context = get_featured_entries(0)
         self.assertEquals(len(context['entries']), 0)
 
     def test_get_random_entries(self):
@@ -130,7 +147,7 @@ class TemplateTagsTestCase(TestCase):
         self.assertEquals(context['template'], 'zinnia/tags/similar_entries.html')
 
         params = {'title': 'My second entry',
-                  'content': 'My second content',
+                  'content': 'This is the second entry of my tests.',
                   'tags': 'zinnia, test',
                   'status': PUBLISHED,
                   'slug': 'my-second-entry'}
@@ -139,9 +156,9 @@ class TemplateTagsTestCase(TestCase):
         second_entry.sites.add(site)
 
         source_context = Context({'object': second_entry})
-        context = get_similar_entries(source_context, 3, 'custom_template.html')
-        #self.assertEquals(len(context['entries']), 1) # Does not work due to cache
-        self.assertEquals(len(context['entries']), 0)
+        context = get_similar_entries(source_context, 3, 'custom_template.html',
+                                      flush=True)
+        self.assertEquals(len(context['entries']), 1)
         self.assertEquals(context['template'], 'custom_template.html')
 
     def test_get_archives_entries(self):
@@ -209,6 +226,11 @@ class TemplateTagsTestCase(TestCase):
         context = get_calendar_entries(source_context)
         self.assertEquals(context['previous_month'], None)
         self.assertEquals(context['next_month'], datetime(2010, 1, 1))
+
+        source_context = Context({'month': datetime(2010, 1, 1)})
+        context = get_calendar_entries(source_context)
+        self.assertEquals(context['previous_month'], None)
+        self.assertEquals(context['next_month'], None)
 
         params = {'title': 'My second entry',
                   'content': 'My second content',
@@ -307,6 +329,36 @@ class TemplateTagsTestCase(TestCase):
                                         parent=cat_1)
         source_context = Context({'request': FakeRequest(cat_2.get_absolute_url()),
                                   'object': cat_2})
+        context = zinnia_breadcrumbs(source_context)
+        self.assertEquals(len(context['breadcrumbs']), 4)
+
+        tag = Tag.objects.get(name='test')
+        source_context = Context({'request': FakeRequest(reverse(
+            'zinnia_tag_detail', args=['test'])),
+                                  'object': tag})
+        context = zinnia_breadcrumbs(source_context)
+        self.assertEquals(len(context['breadcrumbs']), 3)
+
+        User.objects.create_user(username='webmaster',
+                                 email='webmaster@example.com')
+        author = Author.objects.get(username='webmaster')
+        source_context = Context({'request': FakeRequest(author.get_absolute_url()),
+                                  'object': author})
+        context = zinnia_breadcrumbs(source_context)
+        self.assertEquals(len(context['breadcrumbs']), 3)
+
+        source_context = Context({'request': FakeRequest(reverse(
+            'zinnia_entry_archive_year', args=[2011]))})
+        context = zinnia_breadcrumbs(source_context)
+        self.assertEquals(len(context['breadcrumbs']), 2)
+
+        source_context = Context({'request': FakeRequest(reverse(
+            'zinnia_entry_archive_month', args=[2011, '03']))})
+        context = zinnia_breadcrumbs(source_context)
+        self.assertEquals(len(context['breadcrumbs']), 3)
+
+        source_context = Context({'request': FakeRequest(reverse(
+            'zinnia_entry_archive_day', args=[2011, '03', 15]))})
         context = zinnia_breadcrumbs(source_context)
         self.assertEquals(len(context['breadcrumbs']), 4)
         # More tests can be done here, for testing path and objects in context

@@ -17,7 +17,6 @@ from django.utils.encoding import smart_unicode
 from zinnia.models import Entry
 from zinnia.models import Author
 from zinnia.models import Category
-from zinnia.settings import FIRST_WEEK_DAY
 from zinnia.comparison import VectorBuilder
 from zinnia.comparison import pearson_score
 from zinnia.templatetags.zbreadcrumbs import retrieve_breadcrumbs
@@ -26,8 +25,8 @@ register = Library()
 
 VECTORS = None
 VECTORS_FACTORY = lambda: VectorBuilder({'queryset': Entry.published.all(),
-                                          'fields': ['title', 'excerpt',
-                                                     'content']})
+                                         'fields': ['title', 'excerpt',
+                                                    'content']})
 CACHE_ENTRIES_RELATED = {}
 
 
@@ -50,6 +49,13 @@ def get_recent_entries(number=5, template='zinnia/tags/recent_entries.html'):
     """Return the most recent entries"""
     return {'template': template,
             'entries': Entry.published.all()[:number]}
+
+
+@register.inclusion_tag('zinnia/tags/dummy.html')
+def get_featured_entries(number=5, template='zinnia/tags/featured_entries.html'):
+    """Return the featured entries"""
+    return {'template': template,
+            'entries': Entry.published.filter(featured=True)[:number]}
 
 
 @register.inclusion_tag('zinnia/tags/dummy.html')
@@ -89,13 +95,15 @@ def get_popular_entries(number=5, template='zinnia/tags/popular_entries.html'):
 
 @register.inclusion_tag('zinnia/tags/dummy.html', takes_context=True)
 def get_similar_entries(context, number=5,
-                        template='zinnia/tags/similar_entries.html'):
+                        template='zinnia/tags/similar_entries.html',
+                        flush=False):
     """Return similar entries"""
     global VECTORS
     global CACHE_ENTRIES_RELATED
 
-    if VECTORS is None:
+    if VECTORS is None or flush:
         VECTORS = VECTORS_FACTORY()
+        CACHE_ENTRIES_RELATED = {}
 
     def compute_related(object_id, dataset):
         """Compute related entries to an entry with a dataset"""
@@ -151,6 +159,7 @@ def get_calendar_entries(context, year=None, month=None,
     """Return an HTML calendar of entries"""
     if not year or not month:
         date_month = context.get('month') or context.get('day') or \
+                     getattr(context.get('object'), 'creation_date', None) or \
                      datetime.today()
         year, month = date_month.timetuple()[:2]
 
@@ -160,7 +169,7 @@ def get_calendar_entries(context, year=None, month=None,
         return {'calendar':
                 '<p class="notice">Calendar is unavailable for Python<2.5.</p>'}
 
-    calendar = ZinniaCalendar(firstweekday=FIRST_WEEK_DAY)
+    calendar = ZinniaCalendar()
     current_month = datetime(year, month, 1)
 
     dates = list(Entry.published.dates('creation_date', 'month'))

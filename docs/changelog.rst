@@ -1,10 +1,18 @@
 CHANGELOG
 =========
 
+0.9
+---
+
+* Upgraded search engine
+* Feed to Zinnia utility command
+* And a lot of bug fixes
+
 0.8
 ---
 
 * Admin dashboard
+* Featured entries
 * Using Microformats
 * Mails for comment reply
 * Entry model can be extended
@@ -53,7 +61,4 @@ CHANGELOG
 --------------
 
 * The previous versions of Zinnia were not packaged, and were destinated for a
-  personnal use. 
-
-
-
+  personnal use.

@@ -1,4 +1,5 @@
 """Settings of Zinnia"""
+import os
 from django.conf import settings
 
 PING_DIRECTORIES = getattr(settings, 'ZINNIA_PING_DIRECTORIES',
@@ -16,8 +17,6 @@ ALLOW_FUTURE = getattr(settings, 'ZINNIA_ALLOW_FUTURE', True)
 ENTRY_TEMPLATES = getattr(settings, 'ZINNIA_ENTRY_TEMPLATES', [])
 ENTRY_BASE_MODEL = getattr(settings, 'ZINNIA_ENTRY_BASE_MODEL', '')
 
-ADVANCED_SEARCH = getattr(settings, 'ZINNIA_ADVANCED_SEARCH', True)
-
 WYSIWYG = getattr(settings, 'ZINNIA_WYSIWYG',
                   'tinymce' in settings.INSTALLED_APPS \
                   and 'tinymce' or 'wymeditor')
@@ -29,13 +28,12 @@ AKISMET_COMMENT = getattr(settings, 'ZINNIA_AKISMET_COMMENT', True)
 UPLOAD_TO = getattr(settings, 'ZINNIA_UPLOAD_TO', 'uploads')
 
 PROTOCOL = getattr(settings, 'ZINNIA_PROTOCOL', 'http')
+
 MEDIA_URL = getattr(settings, 'ZINNIA_MEDIA_URL', '/zinnia/')
 STATIC_URL = getattr(settings, 'ZINNIA_STATIC_URL', '/static/zinnia/')
 
 FEEDS_FORMAT = getattr(settings, 'ZINNIA_FEEDS_FORMAT', 'rss')
 FEEDS_MAX_ITEMS = getattr(settings, 'ZINNIA_FEEDS_MAX_ITEMS', 15)
-
-FIRST_WEEK_DAY = getattr(settings, 'ZINNIA_FIRST_WEEK_DAY', 0)
 
 PINGBACK_CONTENT_LENGTH = getattr(settings,
                                   'ZINNIA_PINGBACK_CONTENT_LENGTH', 300)
@@ -45,6 +43,22 @@ F_MAX = getattr(settings, 'ZINNIA_F_MAX', 1.0)
 
 USE_BITLY = getattr(settings, 'ZINNIA_USE_BITLY',
                     'django_bitly' in settings.INSTALLED_APPS)
+
+STOP_WORDS = getattr(settings, 'ZINNIA_STOP_WORDS',
+                     ('able', 'about', 'across', 'after', 'all', 'almost',
+                      'also', 'among', 'and', 'any', 'are', 'because', 'been',
+                      'but', 'can', 'cannot', 'could', 'dear', 'did', 'does',
+                      'either', 'else', 'ever', 'every', 'for', 'from', 'get',
+                      'got', 'had', 'has', 'have', 'her', 'hers', 'him', 'his',
+                      'how', 'however', 'into', 'its', 'just', 'least', 'let',
+                      'like', 'likely', 'may', 'might', 'most', 'must',
+                      'neither', 'nor', 'not', 'off', 'often', 'only', 'other',
+                      'our', 'own', 'rather', 'said', 'say', 'says', 'she',
+                      'should', 'since', 'some', 'than', 'that', 'the',
+                      'their', 'them', 'then', 'there', 'these', 'they',
+                      'this', 'tis', 'too', 'twas', 'wants', 'was', 'were',
+                      'what', 'when', 'where', 'which', 'while', 'who', 'whom',
+                      'why', 'will', 'with', 'would', 'yet', 'you', 'your'))
 
 try:
     import tweepy

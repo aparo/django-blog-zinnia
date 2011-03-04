@@ -21,7 +21,7 @@ under `nose
 <http://somethingaboutorange.com/mrl/projects/nose/0.11.2/>`_ by launching
 this command: ::
 
-  $>./bin/test
+  $ ./bin/test
 
 But the tests can also be launched within a django project with the default
 test runner.
@@ -29,7 +29,7 @@ test runner.
 Despite my best efforts, some functionnalities are not yet tested, that's why
 I need your help !
 
-As I write these lines the **90** tests in Zinnia cover **87%** of the code
+As I write these lines the **93** tests in Zinnia cover **88%** of the code
 bundled in Zinnia. It's not bad, but the goal (*realistic*) is to reach a
 **95%** coverage.
 
@@ -39,7 +39,7 @@ future evolutions.
 
 You can check the actual coverage percent at this url:
 
-http://django-blog-zinnia.com/docs/coverage/index.html
+http://django-blog-zinnia.com/documentation/coverage/
 
 I hope that you will write some tests and find some bugs. :)
 
