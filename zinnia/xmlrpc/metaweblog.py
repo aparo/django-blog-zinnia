@@ -9,8 +9,8 @@ from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.utils.translation import gettext as _
+from django.utils.text import Truncator
 from django.utils.html import strip_tags
-from django.utils.text import truncate_words
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.template.defaultfilters import slugify
@@ -162,7 +162,8 @@ def get_post(post_id, username, password):
     return post_structure(Entry.objects.get(id=post_id, authors=user), site)
 
 
-@xmlrpc_func(returns='struct[]', args=['string', 'string', 'string', 'integer'])
+@xmlrpc_func(returns='struct[]',
+             args=['string', 'string', 'string', 'integer'])
 def get_recent_posts(blog_id, username, password, number):
     """metaWeblog.getRecentPosts(blog_id, username, password, number)
     => post structure[]"""
@@ -213,8 +214,8 @@ def new_post(blog_id, username, password, post, publish):
 
     entry_dict = {'title': post['title'],
                   'content': post['description'],
-                  'excerpt': post.get('mt_excerpt', truncate_words(
-                      strip_tags(post['description']), 50)),
+                  'excerpt': post.get('mt_excerpt', Truncator('...').words(
+                      50, strip_tags(post['description']))),
                   'creation_date': creation_date,
                   'last_update': creation_date,
                   'comment_enabled': post.get('mt_allow_comments', 1) == 1,
@@ -223,8 +224,10 @@ def new_post(blog_id, username, password, post, publish):
                   'tags': 'mt_keywords' in post and post['mt_keywords'] or '',
                   'slug': 'wp_slug' in post and post['wp_slug'] or slugify(
                       post['title']),
-                  'password': post.get('wp_password', ''),
-                  'status': publish and PUBLISHED or DRAFT}
+                  'password': post.get('wp_password', '')}
+    if user.has_perm('zinnia.can_change_status'):
+        entry_dict['status'] = publish and PUBLISHED or DRAFT
+
     entry = Entry.objects.create(**entry_dict)
 
     author = user
@@ -258,8 +261,8 @@ def edit_post(post_id, username, password, post, publish):
 
     entry.title = post['title']
     entry.content = post['description']
-    entry.excerpt = post.get('mt_excerpt', truncate_words(
-        strip_tags(post['description']), 50))
+    entry.excerpt = post.get('mt_excerpt', Truncator('...').words(
+        50, strip_tags(post['description'])))
     entry.creation_date = creation_date
     entry.last_update = datetime.now()
     entry.comment_enabled = post.get('mt_allow_comments', 1) == 1
@@ -268,7 +271,8 @@ def edit_post(post_id, username, password, post, publish):
     entry.tags = 'mt_keywords' in post and post['mt_keywords'] or ''
     entry.slug = 'wp_slug' in post and post['wp_slug'] or slugify(
         post['title'])
-    entry.status = publish and PUBLISHED or DRAFT
+    if user.has_perm('zinnia.can_change_status'):
+        entry.status = publish and PUBLISHED or DRAFT
     entry.password = post.get('wp_password', '')
     entry.save()
 

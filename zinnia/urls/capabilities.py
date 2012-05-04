@@ -1,22 +1,21 @@
 """Urls for the zinnia capabilities"""
-from django.conf.urls.defaults import url
-from django.conf.urls.defaults import patterns
-from django.contrib.sites.models import Site
+from django.conf.urls import url
+from django.conf.urls import patterns
 
-from zinnia.settings import PROTOCOL
+from zinnia.views.capabilities import RsdXml
+from zinnia.views.capabilities import HumansTxt
+from zinnia.views.capabilities import OpenSearchXml
+from zinnia.views.capabilities import WLWManifestXml
 
-extra_context = {'protocol': PROTOCOL,
-                 'site': Site.objects.get_current()}
 
-urlpatterns = patterns('django.views.generic.simple',
-                       url(r'^rsd.xml$', 'direct_to_template',
-                           {'template': 'zinnia/rsd.xml',
-                            'mimetype': 'text/xml',
-                            'extra_context': extra_context},
-                           name='zinnia_rsd'),
-                       url(r'^wlwmanifest.xml$', 'direct_to_template',
-                           {'template': 'zinnia/wlwmanifest.xml',
-                            'mimetype': 'text/xml',
-                            'extra_context': extra_context},
-                           name='zinnia_wlwmanifest'),
-                       )
+urlpatterns = patterns(
+    '',
+    url(r'^rsd.xml$', RsdXml.as_view(),
+        name='zinnia_rsd'),
+    url(r'^humans.txt$', HumansTxt.as_view(),
+        name='zinnia_humans'),
+    url(r'^opensearch.xml$', OpenSearchXml.as_view(),
+        name='zinnia_opensearch'),
+    url(r'^wlwmanifest.xml$', WLWManifestXml.as_view(),
+        name='zinnia_wlwmanifest')
+    )

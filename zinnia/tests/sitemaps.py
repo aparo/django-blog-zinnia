@@ -6,6 +6,7 @@ from django.contrib.sites.models import Site
 from tagging.models import Tag
 
 from zinnia.models import Entry
+from zinnia.models import Author
 from zinnia.models import Category
 from zinnia.managers import PUBLISHED
 from zinnia.sitemaps import EntrySitemap
@@ -42,21 +43,25 @@ class ZinniaSitemapsTestCase(TestCase):
     def test_entry_sitemap(self):
         sitemap = EntrySitemap()
         self.assertEquals(len(sitemap.items()), 2)
-        self.assertEquals(sitemap.lastmod(self.entry_1), self.entry_1.last_update)
+        self.assertEquals(sitemap.lastmod(self.entry_1),
+                          self.entry_1.last_update)
 
     def test_category_sitemap(self):
         sitemap = CategorySitemap()
         self.assertEquals(len(sitemap.items()), 1)
-        self.assertEquals(sitemap.lastmod(self.category), self.entry_2.creation_date)
+        self.assertEquals(sitemap.lastmod(self.category),
+                          self.entry_2.creation_date)
         self.assertEquals(sitemap.lastmod(Category.objects.create(
             title='New', slug='new')), None)
         self.assertEquals(sitemap.priority(self.category), '1.0')
 
     def test_author_sitemap(self):
         sitemap = AuthorSitemap()
-        self.assertEquals(len(sitemap.items()), 1)
-        self.assertEquals(sitemap.lastmod(self.author), self.entry_2.creation_date)
-        self.assertEquals(sitemap.lastmod(User.objects.create(
+        authors = sitemap.items()
+        self.assertEquals(len(authors), 1)
+        self.assertEquals(sitemap.lastmod(authors[0]),
+                          self.entry_2.creation_date)
+        self.assertEquals(sitemap.lastmod(Author.objects.create(
             username='New', email='new@example.com')), None)
         self.assertEquals(sitemap.location(self.author), '/authors/admin/')
 
@@ -64,7 +69,8 @@ class ZinniaSitemapsTestCase(TestCase):
         sitemap = TagSitemap()
         zinnia_tag = Tag.objects.get(name='zinnia')
         self.assertEquals(len(sitemap.items()), 2)
-        self.assertEquals(sitemap.lastmod(zinnia_tag), self.entry_2.creation_date)
+        self.assertEquals(sitemap.lastmod(zinnia_tag),
+                          self.entry_2.creation_date)
         self.assertEquals(sitemap.priority(zinnia_tag), '1.0')
         self.assertEquals(sitemap.location(zinnia_tag), '/tags/zinnia/')
 

@@ -1,21 +1,26 @@
 """Views for Zinnia entries"""
-from django.views.generic.list_detail import object_list
-from django.views.generic.date_based import archive_year
-from django.views.generic.date_based import archive_month
-from django.views.generic.date_based import archive_day
-from django.views.generic.date_based import object_detail
+from django.views.generic.dates import BaseDateDetailView
 
 from zinnia.models import Entry
-from zinnia.views.decorators import protect_entry
-from zinnia.views.decorators import update_queryset
+from zinnia.views.mixins.archives import ArchiveMixin
+from zinnia.views.mixins.entry_protection import EntryProtectionMixin
+from zinnia.views.mixins.templates import EntryArchiveTemplateResponseMixin
 
 
-entry_index = update_queryset(object_list, Entry.published.all)
+class EntryDateDetail(ArchiveMixin,
+                      EntryArchiveTemplateResponseMixin,
+                      BaseDateDetailView):
+    """
+    Mixin combinating:
 
-entry_year = update_queryset(archive_year, Entry.published.all)
+    - ArchiveMixin configuration centralizing conf for archive views
+    - EntryArchiveTemplateResponseMixin to provide a
+      custom templates depending on the date
+    - BaseDateDetailView to retrieve the entry with date and slug
+    """
+    queryset = Entry.published.on_site()
 
-entry_month = update_queryset(archive_month, Entry.published.all)
 
-entry_day = update_queryset(archive_day, Entry.published.all)
-
-entry_detail = protect_entry(object_detail)
+class EntryDetail(EntryProtectionMixin, EntryDateDetail):
+    """Detailled view archive view for an Entry
+    with password and login protections"""

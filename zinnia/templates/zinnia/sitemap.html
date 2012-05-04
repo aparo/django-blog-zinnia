@@ -3,6 +3,8 @@
 
 {% block title %}{% trans "Sitemap" %}{% endblock %}
 
+{% block body-class %}sitemap{% endblock %}
+
 {% block content %}
 <h2>{% trans "Sitemap" %}</h2>
 
@@ -11,10 +13,10 @@
   {% for category in categories %}
   <h4>{{ category }}</h4>
   <ul>
-    {% for entry in category.entries_published_set.all %}
+    {% for entry in category.entries_published.all %}
     <li>
       <a href="{{ entry.get_absolute_url }}" title="{{ entry.title }}" rel="bookmark">{{ entry.title }}</a>
-      {% with entry.comments.count as comment_count %}
+      {% with comment_count=entry.comments.count %}
       - {{ comment_count }} {% trans "comment" %}{{ comment_count|pluralize }}
       {% endwith %}
     </li>
@@ -34,7 +36,7 @@
     <li>
       <a href="{{ entry.get_absolute_url }}" title="{{ entry.title }}" rel="bookmark">{{ entry.title }}</a>
       - {{ entry.creation_date|date:"SHORT_DATE_FORMAT" }}
-      {% with entry.comments.count as comment_count %}
+      {% with comment_count=entry.comments.count %}
       - {{ comment_count }} {% trans "comment" %}{{ comment_count|pluralize }}
       {% endwith %}
     </li>
@@ -52,7 +54,7 @@
     {% if structure.new_level %}<ul><li>{% else %}</li><li>{% endif %}
       <a href="{{ category.get_absolute_url }}" title="{{ category.title }}">{{ category.title }}</a>
       -
-      {% blocktrans count category.entries_published_set.count as entry_count %}{{ entry_count }} entry{% plural %}{{ entry_count }} entries{% endblocktrans %}
+      {% blocktrans count entry_count=category.entries_published.count %}{{ entry_count }} entry{% plural %}{{ entry_count }} entries{% endblocktrans %}
     {% for level in structure.closed_levels %}</li></ul>{% endfor %}
     {% empty %}
   <ul>

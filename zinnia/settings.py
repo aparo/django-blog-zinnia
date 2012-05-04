@@ -1,5 +1,4 @@
 """Settings of Zinnia"""
-import os
 from django.conf import settings
 
 PING_DIRECTORIES = getattr(settings, 'ZINNIA_PING_DIRECTORIES',
@@ -17,20 +16,36 @@ ALLOW_FUTURE = getattr(settings, 'ZINNIA_ALLOW_FUTURE', True)
 ENTRY_TEMPLATES = getattr(settings, 'ZINNIA_ENTRY_TEMPLATES', [])
 ENTRY_BASE_MODEL = getattr(settings, 'ZINNIA_ENTRY_BASE_MODEL', '')
 
+MARKUP_LANGUAGE = getattr(settings, 'ZINNIA_MARKUP_LANGUAGE', 'html')
+
+MARKDOWN_EXTENSIONS = getattr(settings, 'ZINNIA_MARKDOWN_EXTENSIONS', '')
+
+WYSIWYG_MARKUP_MAPPING = {
+    'textile': 'markitup',
+    'markdown': 'markitup',
+    'restructuredtext': 'markitup',
+    'html': 'tinymce' in settings.INSTALLED_APPS and 'tinymce' or 'wymeditor'}
+
 WYSIWYG = getattr(settings, 'ZINNIA_WYSIWYG',
-                  'tinymce' in settings.INSTALLED_APPS \
-                  and 'tinymce' or 'wymeditor')
+                  WYSIWYG_MARKUP_MAPPING.get(MARKUP_LANGUAGE))
 
-MAIL_COMMENT = getattr(settings, 'ZINNIA_MAIL_COMMENT', True)
+AUTO_CLOSE_COMMENTS_AFTER = getattr(
+    settings, 'ZINNIA_AUTO_CLOSE_COMMENTS_AFTER', None)
+
+AUTO_MODERATE_COMMENTS = getattr(settings, 'ZINNIA_AUTO_MODERATE_COMMENTS',
+                                 False)
+
 MAIL_COMMENT_REPLY = getattr(settings, 'ZINNIA_MAIL_COMMENT_REPLY', False)
-AKISMET_COMMENT = getattr(settings, 'ZINNIA_AKISMET_COMMENT', True)
 
-UPLOAD_TO = getattr(settings, 'ZINNIA_UPLOAD_TO', 'uploads')
+MAIL_COMMENT_AUTHORS = getattr(settings, 'ZINNIA_MAIL_COMMENT_AUTHORS', True)
+
+MAIL_COMMENT_NOTIFICATION_RECIPIENTS = getattr(
+    settings, 'ZINNIA_MAIL_COMMENT_NOTIFICATION_RECIPIENTS',
+    [manager_tuple[1] for manager_tuple in settings.MANAGERS])
+
+UPLOAD_TO = getattr(settings, 'ZINNIA_UPLOAD_TO', 'uploads/zinnia')
 
 PROTOCOL = getattr(settings, 'ZINNIA_PROTOCOL', 'http')
-
-MEDIA_URL = getattr(settings, 'ZINNIA_MEDIA_URL', '/zinnia/')
-STATIC_URL = getattr(settings, 'ZINNIA_STATIC_URL', '/static/zinnia/')
 
 FEEDS_FORMAT = getattr(settings, 'ZINNIA_FEEDS_FORMAT', 'rss')
 FEEDS_MAX_ITEMS = getattr(settings, 'ZINNIA_FEEDS_MAX_ITEMS', 15)
@@ -41,8 +56,11 @@ PINGBACK_CONTENT_LENGTH = getattr(settings,
 F_MIN = getattr(settings, 'ZINNIA_F_MIN', 0.1)
 F_MAX = getattr(settings, 'ZINNIA_F_MAX', 1.0)
 
-USE_BITLY = getattr(settings, 'ZINNIA_USE_BITLY',
-                    'django_bitly' in settings.INSTALLED_APPS)
+SPAM_CHECKER_BACKENDS = getattr(settings, 'ZINNIA_SPAM_CHECKER_BACKENDS',
+                                ())
+
+URL_SHORTENER_BACKEND = getattr(settings, 'ZINNIA_URL_SHORTENER_BACKEND',
+                                'zinnia.url_shortener.backends.default')
 
 STOP_WORDS = getattr(settings, 'ZINNIA_STOP_WORDS',
                      ('able', 'about', 'across', 'after', 'all', 'almost',
@@ -60,13 +78,11 @@ STOP_WORDS = getattr(settings, 'ZINNIA_STOP_WORDS',
                       'what', 'when', 'where', 'which', 'while', 'who', 'whom',
                       'why', 'will', 'with', 'would', 'yet', 'you', 'your'))
 
-try:
-    import tweepy
-    USE_TWITTER = getattr(settings, 'ZINNIA_USE_TWITTER', True)
-except ImportError:
-    USE_TWITTER = False
-
 TWITTER_CONSUMER_KEY = getattr(settings, 'TWITTER_CONSUMER_KEY', '')
 TWITTER_CONSUMER_SECRET = getattr(settings, 'TWITTER_CONSUMER_SECRET', '')
 TWITTER_ACCESS_KEY = getattr(settings, 'TWITTER_ACCESS_KEY', '')
 TWITTER_ACCESS_SECRET = getattr(settings, 'TWITTER_ACCESS_SECRET', '')
+
+USE_TWITTER = getattr(settings, 'ZINNIA_USE_TWITTER',
+                      bool(TWITTER_ACCESS_KEY and TWITTER_ACCESS_SECRET and \
+                           TWITTER_CONSUMER_KEY and TWITTER_CONSUMER_SECRET))

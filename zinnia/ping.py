@@ -12,6 +12,7 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 
 from zinnia.settings import PROTOCOL
+from zinnia.managers import PINGBACK
 
 
 class URLRessources(object):
@@ -126,7 +127,7 @@ class ExternalUrlsPinger(threading.Thread):
         for link in soup.findAll('link'):
             dict_attr = dict(link.attrs)
             if 'rel' in dict_attr and 'href' in dict_attr:
-                if dict_attr['rel'].lower() == 'pingback':
+                if dict_attr['rel'].lower() == PINGBACK:
                     return dict_attr.get('href')
 
     def find_pingback_urls(self, urls):
@@ -136,8 +137,15 @@ class ExternalUrlsPinger(threading.Thread):
         for url in urls:
             try:
                 page = urlopen(url)
-                server_url = page.info().get('X-Pingback') or \
-                             self.find_pingback_href(page.read())
+                headers = page.info()
+
+                if 'text/' not in headers.get('Content-Type', '').lower():
+                    continue
+
+                server_url = headers.get('X-Pingback')
+                if not server_url:
+                    server_url = self.find_pingback_href(page.read())
+
                 if server_url:
                     server_url_splitted = urlsplit(server_url)
                     if not server_url_splitted.netloc:
@@ -155,6 +163,6 @@ class ExternalUrlsPinger(threading.Thread):
         try:
             server = xmlrpclib.ServerProxy(server_name)
             reply = server.pingback.ping(self.entry_url, target_url)
-        except xmlrpclib.Error:
+        except (xmlrpclib.Error, socket.error):
             reply = '%s cannot be pinged.' % target_url
         return reply

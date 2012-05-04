@@ -7,12 +7,29 @@ DATABASES = {'default': {'NAME': 'zinnia_tests.db',
 
 SITE_ID = 1
 
+STATIC_URL = '/static/'
+
+SECRET_KEY = 'secret-key'
+
 ROOT_URLCONF = 'zinnia.tests.urls'
+
+LOCALE_PATHS = [os.path.join(os.path.dirname(__file__),
+                             'locale')]
+
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
+    ]
 
 TEMPLATE_CONTEXT_PROCESSORS = [
     'django.core.context_processors.request',
-    'zinnia.context_processors.media',
     'zinnia.context_processors.version']
+
+TEMPLATE_LOADERS = [
+    ['django.template.loaders.cached.Loader', [
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader']
+     ]
+    ]
 
 TEMPLATE_DIRS = [os.path.join(os.path.dirname(__file__),
                               'tests', 'templates')]
