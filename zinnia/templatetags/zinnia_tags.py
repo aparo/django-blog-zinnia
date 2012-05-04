@@ -6,6 +6,7 @@ from datetime import datetime
 
 from django.db.models import Q
 from django.db.models import Count
+from django.template import Node
 from django.template import Library
 from django.contrib.comments.models import CommentFlag
 from django.contrib.contenttypes.models import ContentType
@@ -172,7 +173,7 @@ def get_calendar_entries(context, year=None, month=None,
         year, month = date_month.timetuple()[:2]
 
     calendar = ZinniaCalendar()
-    current_month = datetime(year, month, 1)
+    current_month = datetime(year, month, 1, tzinfo=timezone.utc)
 
     dates = list(Entry.published.dates('creation_date', 'month'))
 
@@ -273,7 +274,7 @@ def zinnia_breadcrumbs(context, root_name='Blog',
     """Return a breadcrumb for the application"""
     path = context['request'].path
     context_object = context.get('object') or context.get('category') or \
-                     context.get('tag') or context.get('author')
+                  context.get('tag') or context.get('author')
     context_page = context.get('page_obj')
     breadcrumbs = retrieve_breadcrumbs(path, context_object,
                                        context_page, root_name)

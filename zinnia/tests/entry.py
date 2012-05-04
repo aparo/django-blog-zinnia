@@ -5,6 +5,7 @@ from datetime import datetime
 from datetime import timedelta
 
 from django.test import TestCase
+from django.conf import settings
 from django.contrib import comments
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
@@ -93,7 +94,7 @@ class EntryTestCase(TestCase):
         models.AUTO_CLOSE_COMMENTS_AFTER = None
         self.assertEquals(self.entry.comments_are_open, True)
         models.AUTO_CLOSE_COMMENTS_AFTER = 5
-        self.entry.start_publication = datetime.now() - timedelta(days=7)
+        self.entry.start_publication = timezone.now() - timedelta(days=7)
         self.entry.save()
         self.assertEquals(self.entry.comments_are_open, False)
 
@@ -101,18 +102,21 @@ class EntryTestCase(TestCase):
 
     def test_is_actual(self):
         self.assertTrue(self.entry.is_actual)
-        self.entry.start_publication = datetime(2020, 3, 15)
+        self.entry.start_publication = datetime(2020, 3, 15,
+                                                tzinfo=timezone.utc)
         self.assertFalse(self.entry.is_actual)
-        self.entry.start_publication = datetime.now()
+        self.entry.start_publication = timezone.now()
         self.assertTrue(self.entry.is_actual)
-        self.entry.end_publication = datetime(2000, 3, 15)
+        self.entry.end_publication = datetime(2000, 3, 15,
+                                              tzinfo=timezone.utc)
         self.assertFalse(self.entry.is_actual)
 
     def test_is_visible(self):
         self.assertFalse(self.entry.is_visible)
         self.entry.status = PUBLISHED
         self.assertTrue(self.entry.is_visible)
-        self.entry.start_publication = datetime(2020, 3, 15)
+        self.entry.start_publication = datetime(2020, 3, 15,
+                                                tzinfo=timezone.utc)
         self.assertFalse(self.entry.is_visible)
 
     def test_short_url(self):

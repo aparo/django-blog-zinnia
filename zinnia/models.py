@@ -4,6 +4,7 @@ from datetime import datetime
 
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 from django.utils.html import strip_tags
 from django.utils.html import linebreaks
 from django.contrib.auth.models import User
@@ -136,14 +137,16 @@ class EntryAbstractClass(models.Model):
     pingback_enabled = models.BooleanField(_('linkback enabled'), default=True)
 
     creation_date = models.DateTimeField(_('creation date'),
-                                         default=datetime.now)
-    last_update = models.DateTimeField(_('last update'), default=datetime.now)
+                                         default=timezone.now)
+    last_update = models.DateTimeField(_('last update'), default=timezone.now)
     start_publication = models.DateTimeField(_('start publication'),
                                              help_text=_('date start publish'),
-                                             default=datetime.now)
+                                             default=timezone.now)
     end_publication = models.DateTimeField(_('end publication'),
                                            help_text=_('date end publish'),
-                                           default=datetime(2042, 3, 15))
+                                           default=datetime(
+                                               2042, 3, 15,
+                                               tzinfo=timezone.utc))
 
     sites = models.ManyToManyField(Site, verbose_name=_('sites publication'),
                                    related_name='entries')
@@ -202,7 +205,7 @@ class EntryAbstractClass(models.Model):
     @property
     def is_actual(self):
         """Check if an entry is within publication period"""
-        now = datetime.now()
+        now = timezone.now()
         return now >= self.start_publication and now < self.end_publication
 
     @property
@@ -241,7 +244,7 @@ class EntryAbstractClass(models.Model):
     def comments_are_open(self):
         """Check if comments are open"""
         if AUTO_CLOSE_COMMENTS_AFTER and self.comment_enabled:
-            return (datetime.now() - self.start_publication).days < \
+            return (timezone.now() - self.start_publication).days < \
                    AUTO_CLOSE_COMMENTS_AFTER
         return self.comment_enabled
 

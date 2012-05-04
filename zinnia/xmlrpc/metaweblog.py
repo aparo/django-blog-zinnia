@@ -5,6 +5,7 @@ from xmlrpclib import Fault
 from xmlrpclib import DateTime
 
 from django.conf import settings
+from django.utils import timezone
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
@@ -98,7 +99,8 @@ def post_structure(entry, site):
             'permaLink': '%s://%s%s' % (PROTOCOL, site.domain,
                                         entry.get_absolute_url()),
             'categories': [cat.title for cat in entry.categories.all()],
-            'dateCreated': DateTime(entry.creation_date.isoformat()),
+            'dateCreated': DateTime(timezone.make_naive(
+                entry.creation_date, timezone.utc).isoformat()),
             'postid': entry.pk,
             'userid': author.username,
             # Useful Movable Type Extensions
@@ -208,9 +210,9 @@ def new_post(blog_id, username, password, post, publish):
     if post.get('dateCreated'):
         creation_date = datetime.strptime(
             post['dateCreated'].value.replace('Z', '').replace('-', ''),
-            '%Y%m%dT%H:%M:%S')
+            '%Y%m%dT%H:%M:%S').replace(tzinfo=timezone.utc)
     else:
-        creation_date = datetime.now()
+        creation_date = timezone.now()
 
     entry_dict = {'title': post['title'],
                   'content': post['description'],
@@ -255,7 +257,7 @@ def edit_post(post_id, username, password, post, publish):
     if post.get('dateCreated'):
         creation_date = datetime.strptime(
             post['dateCreated'].value.replace('Z', '').replace('-', ''),
-            '%Y%m%dT%H:%M:%S')
+            '%Y%m%dT%H:%M:%S').replace(tzinfo=timezone.utc)
     else:
         creation_date = entry.creation_date
 
@@ -264,7 +266,7 @@ def edit_post(post_id, username, password, post, publish):
     entry.excerpt = post.get('mt_excerpt', Truncator('...').words(
         50, strip_tags(post['description'])))
     entry.creation_date = creation_date
-    entry.last_update = datetime.now()
+    entry.last_update = timezone.now()
     entry.comment_enabled = post.get('mt_allow_comments', 1) == 1
     entry.pingback_enabled = post.get('mt_allow_pings', 1) == 1
     entry.featured = post.get('sticky', 0) == 1

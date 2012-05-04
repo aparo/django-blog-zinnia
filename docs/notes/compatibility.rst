@@ -7,7 +7,7 @@ readability and to be always present when the version 3.4.2 of Django will
 be here. :)
 
 Predicting the future is a good thing, because it's coming soon.
-Actually Zinnia is designed to handle the 1.3.x version and will reach the
+Actually Zinnia is designed to handle the 1.4.x version and will reach the
 release 1.5 easily without major changes.
 
 https://docs.djangoproject.com/en/dev/internals/deprecation/
@@ -22,6 +22,12 @@ Compatibility with Django
 =========================
 
 Here a list establishing the compatibility between Zinnia and Django:
+
+.. versionchanged:: 0.11
+
+Backward incompatibilities with Django v1.3.x due to :
+
+* Time zones support
 
 .. versionchanged:: 0.10
 
