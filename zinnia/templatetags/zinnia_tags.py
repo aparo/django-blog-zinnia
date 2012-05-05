@@ -12,6 +12,7 @@ from django.contrib.comments.models import CommentFlag
 from django.contrib.contenttypes.models import ContentType
 from django.utils.encoding import smart_unicode
 from django.contrib.comments import get_model as get_comment_model
+from django.utils import timezone
 
 from tagging.models import Tag
 from tagging.utils import calculate_cloud
@@ -27,6 +28,7 @@ from zinnia.comparison import VectorBuilder
 from zinnia.comparison import pearson_score
 from zinnia.templatetags.zcalendar import ZinniaCalendar
 from zinnia.templatetags.zbreadcrumbs import retrieve_breadcrumbs
+
 
 register = Library()
 
